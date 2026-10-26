@@ -199,8 +199,8 @@ main { position: relative; flex: 1; min-height: 0; }
       <section>
         <p class="eyebrow">Typography &amp; layout · architecture unchanged</p>
         <h2>A layout that uses the length of the wall</h2>
-        <p style="margin-top:10px">The earlier proposals stacked the logo and every line in a block at the centre: the group used about half of the 7,924 mm wall, left almost 2 m of bare stone each side, and kept the English and Chinese lines near 100 mm. Here the Lao line runs the full width of the group, the logo sits beside DANSAVANH, and English and Chinese share one row, so the secondary lines can grow without crowding the cornice.</p>
-        <p class="lao" style="margin-top:6px">ຜັງເກົ່າກອງທຸກຢ່າງໄວ້ກາງປ້າຍ ຈຶ່ງຫວ່າງຊ້າຍ–ຂວາ ແລະ ແຖວຮອງນ້ອຍ. ຜັງໃໝ່: ລາວແຖວດຽວເຕັມຄວາມກວ້າງກຸ່ມ, logo ຢູ່ຂ້າງ DANSAVANH, ອັງກິດ ແລະ ຈີນ ຢູ່ແຖວດຽວກັນ.</p>
+        <p style="margin-top:10px">The earlier proposals stacked the logo and every line in a block at the centre: the group used about half of the 7,924 mm wall, left almost 2 m of bare stone each side, and kept the English and Chinese lines near 100 mm. Here, as in the selected render, the logo stands on the left at the full height of the lettering, and one text column sits beside it: the Lao line, DANSAVANH, then English and Chinese sharing one row, every line as wide as DANSAVANH.</p>
+        <p class="lao" style="margin-top:6px">ຜັງເກົ່າກອງທຸກຢ່າງໄວ້ກາງປ້າຍ ຈຶ່ງຫວ່າງຊ້າຍ–ຂວາ ແລະ ແຖວຮອງນ້ອຍ. ຜັງໃໝ່ (ຕາມຮູບທີ່ເລືອກ): logo ຢູ່ຊ້າຍ ສູງເທົ່າກຸ່ມຕົວໜັງສື, ຂວາແມ່ນ ລາວ → DANSAVANH → ອັງກິດ + ຈີນ ແຖວດຽວກັນ, ທຸກແຖວກວ້າງເທົ່າ DANSAVANH.</p>
       </section>
       <section class="opt-card">
         <header><div><h3>Front elevation</h3><p class="lao">ຮູບດ້ານໜ້າ — ມາດຕາສ່ວນດຽວກັບໂມເດວ</p></div></header>
@@ -285,17 +285,18 @@ const FACES = {
 const WEIGHT_NAMES = { 300: 'Light', 400: 'Regular', 500: 'Medium', 600: 'SemiBold', 700: 'Bold' };
 const LOGO_ASPECT = 1315 / 1225;   // assets/DSV_logo.png, kept exactly
 
-// Long-wall layout: one Lao line across the full group width; below it the logo (left) beside DANSAVANH, with
-// English and Chinese side by side underneath. Left and right edges are shared, so the group reads as one block.
+// Logo-beside layout (selected render): the logo on the left beside one text column — Lao, DANSAVANH, then English
+// (left) and Chinese (right) on one row; Lao is as wide as DANSAVANH. Sizes and spacing (m) as measured from
+// "ໂຄງສ້າງປ້າຍເດີມ/existing final.skp"; the group is centred on the wall axis.
 const LAYOUT = {
-  title: 'Long-wall layout', titleLao: 'ຜັງໃຊ້ຄວາມຍາວຝາ',
-  share: 0.72,                       // group width ÷ central wall width (trial target 65–75 %)
+  title: 'Logo-beside layout', titleLao: 'ໂລໂກ້ຂ້າງຕົວໜັງສື',
   lao: { weight: 500 }, brand: { weight: 600, track: 0.02 }, en: { weight: 500, track: 0.02 }, cn: { weight: 500, track: 0.05 },
-  cnToEn: 1.10,                      // Chinese ink height ÷ English cap height (Han glyphs read larger than Latin caps)
-  gapLao: 0.20, gapRow: 0.22,        // clear ink-to-ink space below the Lao line / below DANSAVANH, × DANSAVANH cap
-  rowGap: 2.2,                       // clear space between English and Chinese, × English cap height
-  logoGap: 0.60,                     // logo to lettering, × DANSAVANH cap
-  lift: 0.02                         // optical lift of the block above the wall's centre height (m)
+  brandCap: 0.527, enCap: 0.1176, cnH: 0.1294,   // DANSAVANH and English cap height, Chinese character height
+  logoH: 0.958,                      // logo height; width follows the asset proportions
+  gapLao: 0.068, gapRow: 0.116,      // clear ink-to-ink space below the Lao line / below DANSAVANH
+  logoGap: 0.366,                    // logo to the left edge of the text column
+  logoDy: 0.027,                     // logo centre above the lettering's centre
+  lift: 0.043                        // lettering centre above the wall's centre height
 };
 // Previous centred plaque, kept only for the before / after comparison.
 const PREV = {
@@ -323,42 +324,32 @@ function unit(L) { measureLine(L, 1); return { perW: 1 / L.width, perH: 1 / L.h 
 const mkLine = (role, spec, id) => Object.assign({ id: id || role, role, text: role === 'lao' ? LAO_TEXT : FACES[role].text, track: 0 }, FACES[role], spec);
 
 function computeLayout() {
-  const P = LAYOUT, Wall = D.wall.L, G = P.share * Wall;
+  const P = LAYOUT, Wall = D.wall.L;
   const lao = mkLine('lao', P.lao), brand = mkLine('brand', P.brand), en = mkLine('en', P.en), cn = mkLine('cn', P.cn);
-  measureLine(lao, unit(lao).perW * G);                       // Lao spans the full group width
-  const uB = unit(brand), uE = unit(en), uC = unit(cn);
-  // solve the lower block: logo height = DANSAVANH + gap + bilingual row; column width = G − logo − gap
-  let h = 0.8, colW = 0, B = 0, capE = 0;
-  for (let i = 0; i < 12; i++) {
-    const w = h * LOGO_ASPECT;
-    for (let k = 0; k < 4; k++) { colW = G - w - P.logoGap * B; measureLine(brand, uB.perW * colW); B = brand.h; }
-    // English + gap + Chinese fill the column; Chinese height follows the English cap height
-    const fE = colW / (1 / uE.perW + P.rowGap / uE.perH + P.cnToEn / uE.perH * (1 / uC.perW) / (1 / uC.perH));
-    measureLine(en, fE); capE = en.h;
-    // client rule: English and Chinese never larger than the Lao consonant body
-    measureLine(cn, uC.perH * Math.min(P.cnToEn * capE, lao.body));
-    const rowH = Math.max(en.asc + en.desc, cn.asc + cn.desc);
-    h = brand.asc + brand.desc + P.gapRow * B + rowH;
-  }
-  const logo = { w: h * LOGO_ASPECT, h };
-  // vertical stack (top = 0), then centre the block on the wall face with a small optical lift
+  measureLine(brand, unit(brand).perH * P.brandCap);
+  const B = brand.h, colW = brand.width;
+  const inkW = L => L.inkL + L.inkR;
+  measureLine(lao, 1); measureLine(lao, inkW(brand) / inkW(lao));   // Lao ink spans the DANSAVANH ink
+  measureLine(en, unit(en).perH * P.enCap);
+  measureLine(cn, unit(cn).perH * P.cnH);
+  const logo = { w: P.logoH * LOGO_ASPECT, h: P.logoH };
+  // vertical stack (top = 0), then centre the lettering on the wall face with the measured lift
   lao.base = -lao.asc;
-  const lowerTop = lao.base - lao.desc - P.gapLao * B;
-  brand.base = lowerTop - brand.asc;
-  const rowTop = brand.base - brand.desc - P.gapRow * B, rowH = Math.max(en.asc + en.desc, cn.asc + cn.desc), rowMid = rowTop - rowH / 2;
+  brand.base = lao.base - lao.desc - P.gapLao - brand.asc;
+  const rowTop = brand.base - brand.desc - P.gapRow, rowH = Math.max(en.asc + en.desc, cn.asc + cn.desc), rowMid = rowTop - rowH / 2;
   en.base = rowMid - (en.asc - en.desc) / 2; cn.base = rowMid - (cn.asc - cn.desc) / 2;
   const bottom = rowTop - rowH, H = -bottom, top = (D.wallBase + D.wall.top) / 2 + P.lift + H / 2;
   [lao, brand, en, cn].forEach(L => { L.base += top; });
-  // horizontal: group centred on the wall axis; shared left and right edges
-  const left = -G / 2, colLeft = left + logo.w + P.logoGap * B, right = left + G;
-  lao.x = 0; brand.x = colLeft + colW / 2; en.x = colLeft + en.width / 2; cn.x = right - cn.width / 2;
+  // horizontal: logo + gap + column centred on the wall axis; Lao and DANSAVANH share the column edges
+  const G = logo.w + P.logoGap + colW, left = -G / 2, colLeft = left + logo.w + P.logoGap, right = left + G;
+  brand.x = colLeft + colW / 2; lao.x = colLeft - brand.inkL + lao.inkL + lao.width / 2; en.x = colLeft + en.width / 2; cn.x = right - cn.width / 2;
   const lines = [lao, brand, en, cn];
   return {
-    key: 'N', P, lines, logo: { x: left + logo.w / 2, y: lowerTop + top - h / 2, w: logo.w, h: logo.h },
+    key: 'N', P, lines, logo: { x: left + logo.w / 2, y: top - H / 2 + P.logoDy, w: logo.w, h: logo.h },
     block: { top, bottom: bottom + top, left, right, colLeft, colW }, cap: B,
     cutX: colLeft + Math.min(en.width, colW) * 0.3,
     margins: { left: left + Wall / 2, right: Wall / 2 - right, top: D.wall.top - top, bottom: bottom + top - D.wallBase },
-    gaps: { lao: P.gapLao * B, row: P.gapRow * B, logo: P.logoGap * B, enCn: cn.x - cn.width / 2 - (en.x + en.width / 2) }
+    gaps: { lao: P.gapLao, row: P.gapRow, logo: P.logoGap, enCn: cn.x - cn.width / 2 - (en.x + en.width / 2) }
   };
 }
 // the previous centred plaque, for comparison only
@@ -1129,7 +1120,7 @@ function drawCheckLines(svg, lay) {
   el(g, 'text', { x: hx + 7, y: PY((en.t + en.b) / 2) + 4 }, `EN ${mm(f('en').h)} · 中 ${mm(f('cn').h)}`);
 }
 function elevationSvg(lay, mode) {
-  const svg = plateSvg(`Front elevation, ${lay === LAY ? 'long-wall layout' : 'previous layout'}${mode === 'check' ? ' with check lines' : ''}`);
+  const svg = plateSvg(`Front elevation, ${lay === LAY ? 'logo-beside layout' : 'previous layout'}${mode === 'check' ? ' with check lines' : ''}`);
   drawArchFront(svg, PX, PY, FINISH_LOOK);
   drawLettering(svg, PX, PY, 100, lay);
   if (mode === 'check') drawCheckLines(svg, lay);
@@ -1225,7 +1216,7 @@ function buildLayoutPanel() {
   document.getElementById('qaNot').textContent = 'Not verified here: legibility at real viewing distances and angles on site, glare and night lighting levels, the flatness and true size of the built wall face (drawings use existing.dae, not a survey), and fabrication tolerances.';
   const prev = computePrevLayout(), ba = document.getElementById('beforeAfter'), pf = r => prev.lines.find(L => L.role === r), nf = r => LAY.lines.find(L => L.role === r);
   ba.innerHTML = `<figure><figcaption><b>Before</b> — centred plaque · English ${mm(pf('en').h)} · Chinese ${mm(pf('cn').h)} mm · margins ${mm(prev.block.left + D.wall.L / 2)} mm</figcaption><div class="plate"></div></figure>
-    <figure><figcaption><b>After</b> — long-wall layout · English ${mm(nf('en').h)} · Chinese ${mm(nf('cn').h)} mm · margins ${mm(LAY.margins.left)} mm</figcaption><div class="plate"></div></figure>`;
+    <figure><figcaption><b>After</b> — logo-beside layout · English ${mm(nf('en').h)} · Chinese ${mm(nf('cn').h)} mm · margins ${mm(LAY.margins.left)} mm</figcaption><div class="plate"></div></figure>`;
   const plates = ba.querySelectorAll('.plate');
   plates[0].appendChild(elevationSvg(prev, 'mini')); plates[1].appendChild(elevationSvg(LAY, 'mini'));
   document.getElementById('optDims').innerHTML = dimsTable(LAY);
