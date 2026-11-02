@@ -199,7 +199,7 @@ main { position: relative; flex: 1; min-height: 0; }
       <section>
         <p class="eyebrow">Typography &amp; layout · architecture unchanged</p>
         <h2>A layout that uses the length of the wall</h2>
-        <p style="margin-top:10px">The earlier proposals stacked the logo and every line in a block at the centre: the group used about half of the 7,924 mm wall, left almost 2 m of bare stone each side, and kept the English and Chinese lines near 100 mm. Here, as in the selected render, the logo stands on the left at the full height of the lettering, and one text column sits beside it: the Lao line, DANSAVANH, then English and Chinese sharing one row, every line as wide as DANSAVANH.</p>
+        <p style="margin-top:10px">The earlier proposals stacked the logo and every line in a block at the centre: the group used about half of the 7,924 mm wall, left almost 2 m of bare stone each side, and kept the English and Chinese lines near 100 mm. Here, as in the selected render, the logo stands on the left at the full height of the lettering, and one text column sits beside it: the Lao line, DANSAVANH, then centred English and Chinese on separate rows.</p>
         <p class="lao" style="margin-top:6px">ຜັງເກົ່າກອງທຸກຢ່າງໄວ້ກາງປ້າຍ ຈຶ່ງຫວ່າງຊ້າຍ–ຂວາ ແລະ ແຖວຮອງນ້ອຍ. ຜັງໃໝ່ (ຕາມຮູບທີ່ເລືອກ): logo ຢູ່ຊ້າຍ ສູງເທົ່າກຸ່ມຕົວໜັງສື, ຂວາແມ່ນ ລາວ → DANSAVANH → ອັງກິດ + ຈີນ ແຖວດຽວກັນ, ທຸກແຖວກວ້າງເທົ່າ DANSAVANH.</p>
       </section>
       <section class="opt-card">
@@ -291,12 +291,12 @@ const LOGO_ASPECT = 1315 / 1225;   // assets/DSV_logo.png, kept exactly
 const LAYOUT = {
   title: 'Logo-beside layout', titleLao: 'ໂລໂກ້ຂ້າງຕົວໜັງສື',
   lao: { weight: 500 }, brand: { weight: 600, track: 0.02 }, en: { weight: 500, track: 0.02 }, cn: { weight: 500, track: 0.05 },
-  brandCap: 0.527, enCap: 0.1176, cnH: 0.1294,   // DANSAVANH and English cap height, Chinese character height
-  logoH: 0.958,                      // logo height; width follows the asset proportions
-  gapLao: 0.068, gapRow: 0.116,      // clear ink-to-ink space below the Lao line / below DANSAVANH
+  brandCap: 0.490, enCap: 0.120, cnH: 0.120,   // DANSAVANH and English cap height, Chinese character height
+  logoH: 0.900,                      // logo height; width follows the asset proportions
+  gapLao: 0.070, gapRow: 0.075, gapEnCn: 0.055,      // clear ink-to-ink space below the Lao line / below DANSAVANH
   logoGap: 0.366,                    // logo to the left edge of the text column
-  logoDy: 0.027,                     // logo centre above the lettering's centre
-  lift: 0.043                        // lettering centre above the wall's centre height
+  logoDy: 0.0,                     // logo centre above the lettering's centre
+  lift: 0.0                        // lettering centre above the wall's centre height
 };
 // Previous centred plaque, kept only for the before / after comparison.
 const PREV = {
@@ -336,20 +336,20 @@ function computeLayout() {
   // vertical stack (top = 0), then centre the lettering on the wall face with the measured lift
   lao.base = -lao.asc;
   brand.base = lao.base - lao.desc - P.gapLao - brand.asc;
-  const rowTop = brand.base - brand.desc - P.gapRow, rowH = Math.max(en.asc + en.desc, cn.asc + cn.desc), rowMid = rowTop - rowH / 2;
-  en.base = rowMid - (en.asc - en.desc) / 2; cn.base = rowMid - (cn.asc - cn.desc) / 2;
-  const bottom = rowTop - rowH, H = -bottom, top = (D.wallBase + D.wall.top) / 2 + P.lift + H / 2;
+  en.base = brand.base - brand.desc - P.gapRow - en.asc;
+  cn.base = en.base - en.desc - P.gapEnCn - cn.asc;
+  const bottom = cn.base - cn.desc, H = -bottom, top = (D.wallBase + D.wall.top) / 2 + P.lift + H / 2;
   [lao, brand, en, cn].forEach(L => { L.base += top; });
   // horizontal: logo + gap + column centred on the wall axis; Lao and DANSAVANH share the column edges
   const G = logo.w + P.logoGap + colW, left = -G / 2, colLeft = left + logo.w + P.logoGap, right = left + G;
-  brand.x = colLeft + colW / 2; lao.x = colLeft - brand.inkL + lao.inkL + lao.width / 2; en.x = colLeft + en.width / 2; cn.x = right - cn.width / 2;
+  brand.x = colLeft + colW / 2; lao.x = colLeft - brand.inkL + lao.inkL + lao.width / 2; en.x = colLeft + colW / 2; cn.x = colLeft + colW / 2;
   const lines = [lao, brand, en, cn];
   return {
     key: 'N', P, lines, logo: { x: left + logo.w / 2, y: top - H / 2 + P.logoDy, w: logo.w, h: logo.h },
     block: { top, bottom: bottom + top, left, right, colLeft, colW }, cap: B,
     cutX: colLeft + Math.min(en.width, colW) * 0.3,
     margins: { left: left + Wall / 2, right: Wall / 2 - right, top: D.wall.top - top, bottom: bottom + top - D.wallBase },
-    gaps: { lao: P.gapLao, row: P.gapRow, logo: P.logoGap, enCn: cn.x - cn.width / 2 - (en.x + en.width / 2) }
+    gaps: { lao: P.gapLao, row: P.gapRow, logo: P.logoGap, enCn: P.gapEnCn }
   };
 }
 // the previous centred plaque, for comparison only
@@ -1108,11 +1108,10 @@ function drawCheckLines(svg, lay) {
   const lao = inkBox(f('lao')), br = inkBox(f('brand')), en = inkBox(f('en')), cn = inkBox(f('cn'));
   const gx = PX(B.colLeft) + 10;
   ckDim(g, gx, PY(lao.b), gx, PY(br.t), mm(lao.b - br.t));
-  ckDim(g, gx, PY(br.b), gx, PY(Math.max(en.t, cn.t)), mm(br.b - Math.max(en.t, cn.t)));
+  ckDim(g, gx, PY(br.b), gx, PY(en.t), mm(br.b - en.t));
   const ly = PY(lay.logo.y);
   ckDim(g, PX(lb.r), ly, PX(B.colLeft), ly, mm(B.colLeft - lb.r));
-  const ry = PY((en.b + en.t) / 2) + 22;
-  ckDim(g, PX(en.r), ry, PX(cn.l), ry, mm(cn.l - en.r));
+  ckDim(g, gx, PY(en.b), gx, PY(cn.t), mm(en.b - cn.t));
   // measured heights, right of the group
   const hx = PX(B.right) + 22, hl = (L, k, txt) => ckDim(g, hx, PY(k.t), hx, PY(k.b), txt);
   hl(f('lao'), lao, `ລາວ ${mm(lao.t - lao.b)}/${mm(f('lao').body)}`);
@@ -1187,7 +1186,7 @@ function keyValues(lay) {
     ${line('lao', `full ink incl. vowels and tone marks (consonant body ${mm(f('lao').body)} mm)`)}
     ${line('en', 'cap height')}
     ${line('cn', 'full character height')}
-    ${row('Spacing', `${mm(G.lao)} / ${mm(G.row)}`, `clear space Lao → DANSAVANH / DANSAVANH → English–Chinese row; logo → lettering ${mm(G.logo)} mm; English ↔ Chinese ${mm(G.enCn)} mm`)}
+    ${row('Spacing', `${mm(G.lao)} / ${mm(G.row)}`, `clear space Lao → DANSAVANH / DANSAVANH → English; logo → lettering ${mm(G.logo)} mm; English → Chinese ${mm(G.enCn)} mm`)}
     </tbody></table>`;
 }
 function dimsTable(lay) {
@@ -1198,9 +1197,7 @@ function dimsTable(lay) {
       mm(L.x - L.width / 2), mm(L.x + L.width / 2), mm(L.base), mm(k.b), mm(k.t), mm(L.width), mm(L.h), mm(L.fs)); }));
   return `<div class="tbl"><table><thead><tr><th>Element</th><th>Text</th><th>Advance left X</th><th>Advance right X</th><th>Baseline Z</th><th>Ink bottom Z</th><th>Ink top Z</th><th>Width</th><th>Height</th><th>Font size</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>`;
 }
-const EXPORTS = ['DSV_Gate2_LongWall_Elevation_4K.png — 3D orthographic render', 'DSV_Gate2_LongWall_Plate_4K.png — front elevation drawing',
-  'DSV_Gate2_LongWall_CheckLines_4K.png — elevation with check lines', 'DSV_Gate2_LongWall_Layout_mm.csv', 'DSV_Gate2_LongWall_Layout.dxf',
-  '_previous_options/ — earlier Option A/B/C files, kept for reference'];
+const EXPORTS = ['Previous exports were made for the earlier layout and must be regenerated for this revision.'];
 let QA = [];
 function buildLayoutPanel() {
   if (!LAY) return;
