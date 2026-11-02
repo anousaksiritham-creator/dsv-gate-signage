@@ -199,7 +199,7 @@ main { position: relative; flex: 1; min-height: 0; }
       <section>
         <p class="eyebrow">Typography &amp; layout · architecture unchanged</p>
         <h2>A layout that uses the length of the wall</h2>
-        <p style="margin-top:10px">The earlier proposals stacked the logo and every line in a block at the centre: the group used about half of the 7,924 mm wall, left almost 2 m of bare stone each side, and kept the English and Chinese lines near 100 mm. Here, as in the selected render, the logo stands on the left at the full height of the lettering, and one text column sits beside it: the Lao line, DANSAVANH, then centred English and Chinese on separate rows.</p>
+        <p style="margin-top:10px">The current layout places the logo to the left of the text: Lao, DANSAVANH, English and Chinese on separate lines. ແບບປັດຈຸບັນຈັດໂລໂກ້ໄວ້ດ້ານຊ້າຍ ແລະຂໍ້ຄວາມພາສາລາວ, DANSAVANH, ອັງກິດ ແລະຈີນ ຢູ່ຄົນລະແຖວ.</p>
         <p class="lao" style="margin-top:6px">ຜັງເກົ່າກອງທຸກຢ່າງໄວ້ກາງປ້າຍ ຈຶ່ງຫວ່າງຊ້າຍ–ຂວາ ແລະ ແຖວຮອງນ້ອຍ. ຜັງໃໝ່ (ຕາມຮູບທີ່ເລືອກ): logo ຢູ່ຊ້າຍ ສູງເທົ່າກຸ່ມຕົວໜັງສື, ຂວາແມ່ນ ລາວ → DANSAVANH → ອັງກິດ → ຈີນ ຄົນລະແຖວ ໂດຍຈັດສອງແຖວລຸ່ມໃຫ້ຢູ່ກາງ.</p>
       </section>
       <section class="opt-card">
@@ -219,7 +219,6 @@ main { position: relative; flex: 1; min-height: 0; }
         <div class="tbl" id="qaTable"></div>
         <p id="qaNot" class="muted"></p>
       </section>
-      <section class="tables"><h3>Before and after</h3><div class="ba" id="beforeAfter"></div></section>
       <section class="tables">
         <h3>Layout dimensions for AutoCAD / SketchUp</h3>
         <p>Millimetres. X from the wall centre line (+ to the right, facing the sign); Z from lawn level ±0. Advance box = where the text is set; ink = what is actually printed, including Lao vowels and tone marks.</p>
@@ -1211,11 +1210,6 @@ function buildLayoutPanel() {
     ${QA.map(q => `<tr><td>${q.name}</td><td class="${q.ok ? 'ok' : 'bad'}">${q.ok ? '✓ meets' : '✗ fails'}</td><td>${q.val}</td></tr>`).join('')}
     <tr><td><b>${okN} of ${QA.length} checks met</b></td><td></td><td></td></tr></tbody></table>`;
   document.getElementById('qaNot').textContent = 'Not verified here: legibility at real viewing distances and angles on site, glare and night lighting levels, the flatness and true size of the built wall face (drawings use existing.dae, not a survey), and fabrication tolerances.';
-  const prev = computePrevLayout(), ba = document.getElementById('beforeAfter'), pf = r => prev.lines.find(L => L.role === r), nf = r => LAY.lines.find(L => L.role === r);
-  ba.innerHTML = `<figure><figcaption><b>Before</b> — centred plaque · English ${mm(pf('en').h)} · Chinese ${mm(pf('cn').h)} mm · margins ${mm(prev.block.left + D.wall.L / 2)} mm</figcaption><div class="plate"></div></figure>
-    <figure><figcaption><b>After</b> — logo-beside layout · English ${mm(nf('en').h)} · Chinese ${mm(nf('cn').h)} mm · margins ${mm(LAY.margins.left)} mm</figcaption><div class="plate"></div></figure>`;
-  const plates = ba.querySelectorAll('.plate');
-  plates[0].appendChild(elevationSvg(prev, 'mini')); plates[1].appendChild(elevationSvg(LAY, 'mini'));
   document.getElementById('optDims').innerHTML = dimsTable(LAY);
   document.getElementById('optFiles').innerHTML = EXPORTS.map(n => `<li>${n}</li>`).join('');
 }
