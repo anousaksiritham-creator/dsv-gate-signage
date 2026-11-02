@@ -272,14 +272,14 @@ D.finialTop = D.finial.budY + FINIAL_PROFILE[FINIAL_PROFILE.length - 1][1];
 
 // ---------- Typography ----------
 // Wording is fixed by the client: no translation, no abbreviation, no extra words.
-const LAO_TEXT = 'ຣີສອດທ່ອງທ່ຽວວັດທະນະທຳ ແລະ ທຳມະຊາດ ແດນສະຫວັນ';
-const REQUIRED_TEXT = [LAO_TEXT, 'DANSAVANH', 'Cultural and Eco-Tourism Resort', '丹沙湾文化生态旅游度假区'];
+const LAO_TEXT = 'ຣີສອດວັດທະນະທຳ ແລະ ທ່ອງທ່ຽວທຳມະຊາດ ແດນສະຫວັນ';
+const REQUIRED_TEXT = [LAO_TEXT, 'DANSAVANH', 'Dansavanh Cultural and Eco-Tourism Resort', '丹沙湾文化生态旅游度假区'];
 // sample = glyphs whose ink defines the comparison height: Latin cap "H"; for Lao and Chinese the whole line,
 // so Lao vowels and tone marks are included. body = Lao consonant height, reported for reference only.
 const FACES = {
   lao: { font: '"Noto Sans Lao Looped"', family: 'Noto Sans Lao Looped', sample: null, depth: 0.04, label: 'Lao', laoLabel: 'ລາວ' },
   brand: { font: '"TT Rounds Neue"', family: 'TT Rounds Neue', sample: 'H', depth: 0.06, text: 'DANSAVANH', label: 'DANSAVANH', laoLabel: 'ຊື່ແບຣນ' },
-  en: { font: '"TT Rounds Neue"', family: 'TT Rounds Neue', sample: 'H', depth: 0.04, text: 'Cultural and Eco-Tourism Resort', label: 'English', laoLabel: 'ອັງກິດ' },
+  en: { font: '"TT Rounds Neue"', family: 'TT Rounds Neue', sample: 'H', depth: 0.04, text: 'Dansavanh Cultural and Eco-Tourism Resort', label: 'English', laoLabel: 'ອັງກິດ' },
   cn: { font: '"Noto Sans SC"', family: 'Noto Sans SC', sample: null, depth: 0.04, text: '丹沙湾文化生态旅游度假区', label: 'Chinese', laoLabel: 'ຈີນ' }
 };
 const WEIGHT_NAMES = { 300: 'Light', 400: 'Regular', 500: 'Medium', 600: 'SemiBold', 700: 'Bold' };
@@ -1046,7 +1046,7 @@ function titleBlock(svg, x, y) {
   const lg = el(svg, 'g', { transform: `translate(${x + 4},${y + 3})` });
   el(lg, 'image', { href: LOGO_SRC, width: 8.6, height: 8 });
   el(svg, 'text', { x: x + 16, y: y + 8.5, 'font-size': 6.4, 'font-weight': 700, fill: BLUE, style: 'font-family:"TT Rounds Neue",sans-serif' }, 'DANSAVANH');
-  el(svg, 'text', { x: x + 16, y: y + 12, class: 't', 'font-size': 2.4 }, 'Cultural and Eco-Tourism Resort');
+  el(svg, 'text', { x: x + 16, y: y + 12, class: 't', 'font-size': 2.4 }, 'Dansavanh Cultural and Eco-Tourism Resort');
   el(svg, 'text', { x: x + 4, y: y + 21, class: 't', 'font-size': 4.2, 'font-weight': 600 }, 'GATE SIGNAGE 2 — ENTRANCE MONUMENT');
   el(svg, 'text', { x: x + 4, y: y + 26, class: 'lao', 'font-size': 3 }, 'ປ້າຍປະຕູທາງເຂົ້າ — ແບບລາຍລະອຽດ');
   el(svg, 'text', { x: x + 4, y: y + 30.5, class: 't', 'font-size': 2.3 }, `${LAYOUT.title} · ${COLOURS[colour].name.toLowerCase()}`);
